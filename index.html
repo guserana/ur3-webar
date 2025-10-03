@@ -1,20 +1,41 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>UR3 WebAR</title>
-  <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-  <script src="https://cdn.rawgit.com/jeromeetienne/AR.js/2.2.1/aframe/build/aframe-ar.js"></script>
-</head>
-<body style="margin: 0; overflow: hidden;">
-  <a-scene embedded arjs>
-    <a-marker type="pattern" url="marker.patt">
-      <a-video src="#ur3video" width="1" height="3" position="0 1 0"></a-video>
-      <a-text value="UR3: 6 DOF, 3kg payload, 500mm reach" position="0 1 0" scale="1 1 1" color="yellow"></a-text>
-    </a-marker>
-    <a-assets>
-      <video id="ur3video" src="ur3-video.mp4" autoplay loop muted></video>
-    </a-assets>
-    <a-entity camera></a-entity>
-  </a-scene>
-</body>
-</html>
+  <head>
+    <title>UR3 WebAR</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <script src="https://aframe.io/releases/1.2.0/aframe.min    <script src="https://cdn.rawgit.com/jeromeetienne/AR.js/2.2.1/aframe/build/aframe-ar  </head>
+  <body style="margin: 0; overflow: hidden;">
+    <a-scene embedded arjs>
+      <a-assets>
+        <video id="ur3video" src="ur3-video.mp4" preload="auto" muted loop playsinline webkit-playsinline  <a-video 
+          src="#ur3video" 
+          width="1" 
+          height="0.5" 
+          position="0         position="0 0.6 0" 
+          rotation="-90 0 0" 
+          scale="1 1 1" 
+          color="yellow">
+        </a-text>
+      </a-marker>
+
+      <a-entity camera></a-entity>
+    </a-scene>
+
+    <script>
+      const marker = document.querySelector('a-marker');
+      const video = document.querySelector('#ur3video');
+
+      marker.addEventListener('markerFound', () => {
+        video.play().catch((e) => {
+          console.warn('Autoplay bloqueado, se intentará al tocar la pantalla.');
+        });
+      });
+
+      // Fallback: reproducir al tocar la pantalla
+      document.body.addEventListener('click', () => {
+        if (video.paused) {
+          video.play();
+        }
+      });
+    </script>
+  </body>
