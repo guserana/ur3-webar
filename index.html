@@ -1,12 +1,13 @@
-
 <!DOCTYPE html>
 <html>
 <head>
   <title>UR3 WebAR</title>
-  <script src="https://aframe.io/releases/1.2.0/aframe.min.jsscript src="https://cdn.rawgit.com/jeromeetienne/AR.js/2.2.1/aframe/build/aframe-ar.jsy style="margin: 0; overflow: hidden;">
+  <script src="https://aframe.io/releases/1.2.0/aframe.min.jsscript src="https://cdn.rawgit.com/jeromeetienne/AR.js/2.2.1/aframe/build</script>
+</head>
+<body style="margin: 0; overflow: hidden;">
   <a-scene embedded arjs>
     <a-assets>
-      <video id="ur3video" src="ur3-video.mp4" autoplay muted loop playsinline"marker.patt">
+      <video id="ur3video" src="ur3-video.mp4" autoplay muted loop plays" url="marker.patt">
       <a-video 
         src="#ur3video" 
         width="1" 
@@ -14,17 +15,8 @@
         position="0 0 0"
         autoplay
         muted
-       ext>
-    </a-marker>
-
-    <a-entity camera></a-entity>
+        loop
+        playsinline <a-entity camera></a-entity>
   </a-scene>
-
-  <script>
-    document.querySelector('a-marker').addEventListener('markerFound', function () {
-      const video = document.querySelector('#ur3video');
-      video.play();
-    });
-  </script>
 </body>
 </html>
