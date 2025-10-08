@@ -1,20 +1,109 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>UR3 WebAR</title>
-  <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-  <script src="https://cdn.rawgit.com/jeromeetienne/AR.js/2.2.1/aframe/build/aframe-ar.js"></script>
-</head>
-<body style="margin: 0; overflow: hidden;">
-  <a-scene embedded arjs>
-    <a-marker type="pattern" url="marker.patt">
-      <a-video src="#ur3video" width="1" height="3" position="0 0 -1"></a-video>
-      <a-text value="UR3: 6 DOF, 3kg payload, 500mm reach" position="0 0 0" scale="0.5 0.5 0.5" color="red"></a-text>
-    </a-marker>
-    <a-assets>
-      <video id="ur3video" src="ur3-video.mp4" autoplay loop muted></video>
-    </a-assets>
-    <a-entity camera></a-entity>
-  </a-scene>
-</body>
+  <head>
+    <title>UR3 WebAR</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://cdn.rawgit.com/jeromeetienne/AR.js/2.2.1/aframe/build/aframe-ar.js"></script>
+    <style>
+      #tapToStart {
+        position: fixed; inset: 0; display: none; align-items: center; justify-content: center;
+        background: rgba(0,0,0,.6); color: #fff; z-index: 9999;
+        font-family: system-ui, sans-serif; text-align: center; padding: 24px;
+      }
+      #tapToStart button {
+        padding: 12px 18px; font-size: 16px; border: 0; border-radius: 10px;
+      }
+    </style>
+  </head>
+
+  <body style="margin:0; overflow:hidden;">
+    <div id="tapToStart">
+      <div>
+        <p>🔒 Tu navegador bloqueó la reproducción automática.</p>
+        <button id="startBtn">Tocar para iniciar</button>
+      </div>
+    </div>
+
+    <a-scene
+      vr-mode-ui="enabled: false"
+      renderer="antialias: true; alpha: true"
+      arjs="sourceType: webcam; debugUIEnabled: false; sourceWidth: 640; sourceHeight: 480;"
+    >
+      <a-assets timeout="20000">
+        <video id="ur3video"
+               preload="auto"
+               loop
+               muted
+               playsinline
+               webkit-playsinline
+               crossorigin="anonymous">
+        </video>
+      </a-assets>
+
+      <a-marker type="pattern" url="marker.patt" id="marker">
+        <a-video id="videoPlane"
+                 src="#ur3video"
+                 width="1" height="2"
+                 position="0 0 0"
+                 rotation="-90 0 0"
+                 autoplay="true" loop="true">
+        </a-video>
+
+        <a-text value="UR3: 6 DOF | 3kg | 500mm"
+                position="0 1.2 0"
+                rotation="-90 0 0"
+                scale="0.45 0.45 0.45"
+                color="red">
+        </a-text>
+      </a-marker>
+
+      <a-entity camera position="0 0 0" look-controls="enabled: false"></a-entity>
+    </a-scene>
+
+    <script>
+      const video    = document.getElementById('ur3video');
+      const marker   = document.getElementById('marker');
+      const overlay  = document.getElementById('tapToStart');
+      const startBtn = document.getElementById('startBtn');
+      const videoPlane = document.getElementById('videoPlane');
+
+      // Flags primero
+      video.muted = true;
+      video.setAttribute('muted','');
+      video.playsInline = true;
+      video.setAttribute('playsinline','');
+      video.setAttribute('webkit-playsinline','');
+
+      // Fuente del video
+      video.src = 'ur3-video.mp4';
+      video.load();
+
+      // Ajuste dinámico para Android
+      if (/Android/i.test(navigator.userAgent)) {
+        videoPlane.setAttribute('scale', '0.5 0.5 0.5');
+      }
+
+      async function tryPlay() {
+        try {
+          await video.play();
+          overlay.style.display = 'none';
+        } catch (e) {
+          overlay.style.display = 'flex';
+        }
+      }
+
+      ['loadedmetadata','canplay','canplaythrough','loadeddata'].forEach(evt => {
+        video.addEventListener(evt, () => { tryPlay(); }, { once:false });
+      });
+
+      marker.addEventListener('markerFound', tryPlay);
+      document.addEventListener('visibilitychange', () => { if (!document.hidden) tryPlay(); });
+      window.addEventListener('focus', tryPlay);
+      startBtn.addEventListener('click', tryPlay);
+      ['touchstart','pointerdown','click'].forEach(evt => {
+        document.addEventListener(evt, () => { if (video.paused) tryPlay(); }, { once:true });
+      });
+    </script>
+  </body>
 </html>
